@@ -37,8 +37,8 @@ export const createNewUser: RequestHandler = async (req, res): Promise<any> => {
     host: 'sandbox.smtp.mailtrap.io',
     port: 2525,
     auth: {
-      user: 'ebe3af1fb1b612',
-      pass: '2b4909b33c6f12',
+      user: process.env.NODE_MAILER_USER,
+      pass: process.env.NODE_MAILER_PASSWORD,
     },
   });
 
