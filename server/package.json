@@ -1,0 +1,29 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsnd --respawn -r tsconfig-paths/register --transpile-only ./src/index.ts",
+    "build": "tsc && tsc-alias",
+    "start": "node ./dist"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.2",
+    "mongoose": "^8.11.0",
+    "moongoose": "^0.0.5",
+    "nodemailer": "^6.10.0",
+    "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.11",
+    "tsconfig-paths": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.8",
+    "@types/nodemailer": "^6.4.17"
+  }
+}
