@@ -2,26 +2,28 @@ import { RequestHandler } from 'express';
 import UserModel from 'src/models/user';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { sendErrorRes } from 'src/utils/helper';
 import AuthVerificationTokenModel from 'src/models/authVerificationToken';
 
-export const createNewUser: RequestHandler = async (req, res): Promise<any> => {
+export const createNewUser: RequestHandler = async (req, res) => {
   // Read incoming data like: name, email, password
   const { email, password, name } = req.body;
 
   // Validate if the data is ok or not.
   // Send error if not.
-  if (!name) return res.status(422).json({ message: 'Name is missing!' });
-  if (!email) return res.status(422).json({ message: 'Email is missing!' });
-  if (!password)
-    return res.status(422).json({ message: 'Password is missing!' });
+  // if (!name) return sendErrorRes(res, "Name is missing!", 422);
+  // if (!email) return sendErrorRes(res, "Email is missing!", 422);
+  // if (!password) return sendErrorRes(res, "Password is missing!", 422);
 
   // 4. Check if we already have account with same user.
   const existingUser = await UserModel.findOne({ email });
   // 5. Send error if yes otherwise create new account and save user inside DB.
   if (existingUser)
-    return res
-      .status(401)
-      .json({ message: 'Unauthorized request, email is already in use!' });
+    return sendErrorRes(
+      res,
+      'Unauthorized request, email is already in use!',
+      401
+    );
 
   const user = await UserModel.create({ name, email, password });
 
@@ -32,8 +34,7 @@ export const createNewUser: RequestHandler = async (req, res): Promise<any> => {
   // 7. Send verification link with token to register email.
   const link = `http://localhost:8000/verify?id=${user._id}&token=${token}`;
 
-  // Looking to send emails in production? Check out our Email API/SMTP product!
-  var transport = nodemailer.createTransport({
+  const transport = nodemailer.createTransport({
     host: 'sandbox.smtp.mailtrap.io',
     port: 2525,
     auth: {
