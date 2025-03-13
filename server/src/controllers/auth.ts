@@ -5,9 +5,11 @@ import { sendErrorRes } from 'src/utils/helper';
 import AuthVerificationTokenModel from 'src/models/authVerificationToken';
 import jwt from 'jsonwebtoken';
 import mail from 'src/utils/main';
+import PasswordResetTokenModel from 'src/models/passwordResetToekn';
 
 const VERIFICATION_LINK = process.env.VERIFICATION_LINK;
 const JWT_SECRET = process.env.JWT_SECRET!;
+const PASSWORD_RESET_LINK = process.env.PASSWORD_RESET_LINK!;
 
 export const createNewUser: RequestHandler = async (req, res) => {
   // Read incoming data like: name, email, password
@@ -213,8 +215,43 @@ export const signOut: RequestHandler = async (req, res) => {
   res.send();
 };
 
+export const generateForgetPassLink: RequestHandler = async (req, res) => {
+  /**
+1. Ask for users email
+2. Find user with the given email.
+3. Send error if there is no user.
+4. Else generate password reset token (first remove if there is any).
+5. Generate reset link (like we did for verification)
+6. Send link inside user's email.
+7. Send response back.
+  **/
+
+  const { email } = req.body;
+  const user = await UserModel.findOne({ email });
+
+  if (!user) return sendErrorRes(res, 'Account not found!', 404);
+
+  // Remove token
+  await PasswordResetTokenModel.findOneAndDelete({ owner: user._id });
+
+  // Create new token
+  const token = crypto.randomBytes(36).toString('hex');
+  await PasswordResetTokenModel.create({ owner: user._id, token });
+
+  // send the link to user's email
+  const passResetLink = `${PASSWORD_RESET_LINK}?id=${user._id}&token=${token}`;
+  await mail.sendPasswordResetLink(user.email, passResetLink);
+
+  // send response back
+  res.json({ message: 'Please check your email.' });
+};
+
 export const sendProfile: RequestHandler = async (req, res) => {
   res.json({
     profile: req.user,
   });
+};
+
+export const grantValid: RequestHandler = async (req, res) => {
+  res.json({ valid: true });
 };
