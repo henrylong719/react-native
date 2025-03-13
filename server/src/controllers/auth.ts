@@ -255,3 +255,34 @@ export const sendProfile: RequestHandler = async (req, res) => {
 export const grantValid: RequestHandler = async (req, res) => {
   res.json({ valid: true });
 };
+
+export const updatePassword: RequestHandler = async (req, res) => {
+  /**
+1. Read user id, reset pass token and password.
+2. Validate all these things.
+3. If valid find user with the given id.
+4. Check if user is using same password.
+5. If there is no user or user is using the same password send error res.
+6. Else update new password.
+7. Remove password reset token.
+8. Send confirmation email.
+9. Send response back. 
+  **/
+
+  const { id, password } = req.body;
+
+  const user = await UserModel.findById(id);
+  if (!user) return sendErrorRes(res, 'Unauthorized access!', 403);
+
+  const matched = await user.comparePassword(password);
+  if (matched)
+    return sendErrorRes(res, 'The new password must be different!', 422);
+
+  user.password = password;
+  await user.save();
+
+  await PasswordResetTokenModel.findOneAndDelete({ owner: user._id });
+
+  await mail.sendPasswordUpdateMessage(user.email);
+  res.json({ message: 'Password resets successfully.' });
+};

@@ -13,13 +13,18 @@ yup.addMethod(yup.string, 'email', function validateEmail(message) {
   });
 });
 
-export const newUserSchema = yup.object({
-  name: yup.string().required('Name is missing'),
-  email: yup.string().email('Invalid email!').required('Email is missing'),
+const password = {
   password: yup
     .string()
     .required('Password is missing')
     .min(8, 'Password should be at least 8 chars long!'),
+  // .matches(passwordRegex, 'Password is too simple.'),
+};
+
+export const newUserSchema = yup.object({
+  name: yup.string().required('Name is missing'),
+  email: yup.string().email('Invalid email!').required('Email is missing'),
+  ...password,
 });
 
 const tokenAndId = {
@@ -35,4 +40,9 @@ const tokenAndId = {
 
 export const verifyTokenSchema = yup.object({
   ...tokenAndId,
+});
+
+export const resetPassSchema = yup.object({
+  ...tokenAndId,
+  ...password,
 });

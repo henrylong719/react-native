@@ -8,10 +8,15 @@ import {
   sendProfile,
   signIn,
   signOut,
+  updatePassword,
   verifyEmail,
 } from 'controllers/auth';
 import validate from 'src/middleware/validator';
-import { newUserSchema, verifyTokenSchema } from 'src/utils/validationSchema';
+import {
+  newUserSchema,
+  resetPassSchema,
+  verifyTokenSchema,
+} from 'src/utils/validationSchema';
 import { isAuth, isValidPassResetToken } from 'src/middleware/auth';
 
 const authRouter = Router();
@@ -29,6 +34,13 @@ authRouter.post(
   validate(verifyTokenSchema),
   isValidPassResetToken,
   grantValid
+);
+
+authRouter.post(
+  '/reset-pass',
+  validate(resetPassSchema),
+  isValidPassResetToken,
+  updatePassword
 );
 
 export default authRouter;

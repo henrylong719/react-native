@@ -5,8 +5,8 @@ const confirmPassword = document.getElementById('confirm-password');
 const notification = document.getElementById('notification');
 const submitBtn = document.getElementById('submit');
 
-const passwordRegex =
-  /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/;
+// const passwordRegex =
+//   /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/;
 form.style.display = 'none';
 
 let token, id;
@@ -52,12 +52,12 @@ const handleSubmit = async (evt) => {
   evt.preventDefault();
 
   // validate
-  if (!passwordRegex.test(password.value)) {
-    return displayNotification(
-      'Invalid password use alpha numeric and special chars!',
-      'error'
-    );
-  }
+  // if (!passwordRegex.test(password.value)) {
+  //   return displayNotification(
+  //     'Invalid password use alpha numeric and special chars!',
+  //     'error'
+  //   );
+  // }
 
   if (password.value !== confirmPassword.value) {
     return displayNotification('Password do not match!', 'error');
