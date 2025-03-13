@@ -286,3 +286,22 @@ export const updatePassword: RequestHandler = async (req, res) => {
   await mail.sendPasswordUpdateMessage(user.email);
   res.json({ message: 'Password resets successfully.' });
 };
+
+export const updateProfile: RequestHandler = async (req, res) => {
+  /**
+1. User must be logged in (authenticated).
+2. Name must be valid.
+3. Find user and update the name.
+4. Send new profile back.
+  **/
+
+  const { name } = req.body;
+
+  if (typeof name !== 'string' || name.trim().length < 3) {
+    return sendErrorRes(res, 'Invalid name!', 422);
+  }
+
+  await UserModel.findByIdAndUpdate(req.user.id, { name });
+
+  res.json({ profile: { ...req.user, name } });
+};

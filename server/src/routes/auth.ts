@@ -9,6 +9,7 @@ import {
   signIn,
   signOut,
   updatePassword,
+  updateProfile,
   verifyEmail,
 } from 'controllers/auth';
 import validate from 'src/middleware/validator';
@@ -42,5 +43,7 @@ authRouter.post(
   isValidPassResetToken,
   updatePassword
 );
+
+authRouter.patch('/update-profile', isAuth, updateProfile);
 
 export default authRouter;
