@@ -1,28 +1,18 @@
 import { RequestHandler } from 'express';
 import UserModel from 'src/models/user';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 import { sendErrorRes } from 'src/utils/helper';
-import AuthVerificationTokenModel from 'src/models/authVerificationToken';
 import jwt from 'jsonwebtoken';
+import { isValidObjectId } from 'mongoose';
+import cloudUploader from 'src/cloud';
+import AuthVerificationTokenModel from 'src/models/authVerificationToken';
 import mail from 'src/utils/main';
 import PasswordResetTokenModel from 'src/models/passwordResetToekn';
-import { v2 as cloudinary } from 'cloudinary';
-import { isValidObjectId } from 'mongoose';
 
 const VERIFICATION_LINK = process.env.VERIFICATION_LINK;
 const JWT_SECRET = process.env.JWT_SECRET!;
 const PASSWORD_RESET_LINK = process.env.PASSWORD_RESET_LINK!;
-
-const CLOUD_NAME = process.env.CLOUD_NAME!;
-const CLOUD_KEY = process.env.CLOUD_KEY!;
-const CLOUD_SECRET = process.env.CLOUD_SECRET!;
-
-cloudinary.config({
-  cloud_name: CLOUD_NAME,
-  api_key: CLOUD_KEY,
-  api_secret: CLOUD_SECRET,
-  secure: true,
-});
 
 export const createNewUser: RequestHandler = async (req, res) => {
   // Read incoming data like: name, email, password
@@ -159,8 +149,15 @@ export const signIn: RequestHandler = async (req, res) => {
       email: user.email,
       name: user.name,
       verified: user.verified,
+      avatar: user.avatar?.url,
     },
     tokens: { refresh: refreshToken, access: accessToken },
+  });
+};
+
+export const sendProfile: RequestHandler = async (req, res) => {
+  res.json({
+    profile: req.user,
   });
 };
 
@@ -259,12 +256,6 @@ export const generateForgetPassLink: RequestHandler = async (req, res) => {
   res.json({ message: 'Please check your email.' });
 };
 
-export const sendProfile: RequestHandler = async (req, res) => {
-  res.json({
-    profile: req.user,
-  });
-};
-
 export const grantValid: RequestHandler = async (req, res) => {
   res.json({ valid: true });
 };
@@ -346,11 +337,11 @@ export const updateAvatar: RequestHandler = async (req, res) => {
 
   if (user.avatar?.id) {
     // remove avatar file
-    await cloudinary.uploader.destroy(user.avatar.id);
+    await cloudUploader.destroy(user.avatar.id);
   }
 
   // upload avatar file
-  const { secure_url: url, public_id: id } = await cloudinary.uploader.upload(
+  const { secure_url: url, public_id: id } = await cloudUploader.upload(
     avatar.filepath,
     {
       width: 300,
