@@ -5,7 +5,10 @@
     "paths": {
       "@/*": [
         "./*"
-      ]
+      ],
+      "@views/*":["./app/views/*"],
+      "@components/*":["./app/components/*"],
+      "@utils/*":["./app/utils/*"],
     }
   },
   "include": [
